@@ -1,73 +1,73 @@
-# Incidenti stradali in Italia: dove investire in sicurezza
+# Road accidents in Italy: where to invest in safety
 
-Capstone Project del Master in Data Analytics di Boolean, consegnato ad agosto 2026.
+Capstone Project for the Master in Data Analytics at Boolean, an Italian tech training school, submitted in August 2026.
 
-> **Versione 2, novembre 2026.** Questa è una revisione che ho fatto dopo il corso, per esercitarmi e migliorare. Ho riletto il progetto consegnato, ho trovato degli errori e li ho corretti. In fondo c'è l'elenco di cosa è cambiato e perché. La versione consegnata resta nella storia del repository, al commit `0a4afcc`.
+> **Version 2, November 2026.** This is a revision I made after the course, to practise and improve. I reread the project I had submitted, found some mistakes and fixed them. The list of what changed, and why, is at the bottom. The submitted version is still in the repository history, at commit `0a4afcc`.
 
-**La domanda:** un'azienda che si occupa di traffico e prevenzione vuole sapere in quali comuni italiani conviene investire in sicurezza stradale. Servono numeri aggiornati, confrontabili tra comuni grandi e piccoli, e una dashboard che racconti il risultato.
+**The question:** in the course brief, a company that works on traffic and prevention wants to know in which Italian municipalities it makes sense to invest in road safety. It needs up-to-date numbers that can be compared between large and small municipalities, and a dashboard that presents the result.
 
-**La risposta, in breve:** ho scaricato i dati ISTAT degli incidenti, li ho uniti a popolazione e superficie di ogni comune e ho diviso i 1.202 comuni sopra i 10.000 abitanti in tre profili: **772 a bassa incidentalità, 369 ad alta incidenza, 61 ad alta densità**. Poi li ho messi in ordine con un punteggio di priorità. In testa ci sono Bergamo, Firenze, Genova, Milano e Riccione. Profili e punteggio usano la media degli ultimi tre anni, dal 2023 al 2025.
+**The answer, in short:** I downloaded the accident data from ISTAT, the Italian national statistics institute, and joined it with the population and area of each municipality. I split the 1,202 municipalities with more than 10,000 residents into three profiles: **772 Low, 369 High incidence, 61 High density**, meaning low accident levels, many accidents per resident and many accidents per square kilometre. Then I ranked them with a priority score. At the top are Bergamo, Firenze, Genova, Milano and Riccione. Profiles and score use the average of the last three years, 2023 to 2025.
 
-I numeri sono del 2025, l'ultimo anno pubblicato da ISTAT: 177.207 incidenti con feriti, 2.868 morti, 237.822 feriti.
+The numbers are for 2025, the latest year published by ISTAT: 177,207 accidents with injuries, 2,868 deaths, 237,822 injured.
 
-![Comuni divisi in tre profili](images/cluster-rischio.png)
+![Municipalities split into three profiles](images/cluster-rischio.png)
 
-## Cosa contiene
+## What is inside
 
-| File | Cosa c'è |
+| File | What it contains |
 | --- | --- |
-| `main.ipynb` | Tutta l'analisi in Python: download, pulizia, esplorazione, indicatori, clustering, priorità |
-| `Dashboard.pbix` | La dashboard Power BI, aggiornata ai dati di questa revisione. Tre pagine: la panoramica, la mappa dei profili e la classifica di priorità (`Where to Invest`), con i filtri per profilo e per regione |
-| `Slide deck capstone project.pptx` | Le cinque slide della presentazione, aggiornate ai numeri di questa revisione |
-| `data/raw/` | I dati come arrivano da ISTAT e da SITUAS |
-| `data/clean/` | I dataset prodotti dal notebook, fino a quello con profili e priorità. Per chi li legge con pandas: la sigla della provincia di Napoli è `NA`, che `read_csv` scambia per un valore mancante se non si passa `keep_default_na=False` |
-| `images/` | I grafici salvati dal notebook. Due sono in questa pagina |
-| `requirements.txt` | Le librerie usate dal notebook, con le versioni con cui è stato eseguito |
+| `main.ipynb` | The whole analysis in Python: download, cleaning, exploration, indicators, clustering, priority |
+| `Dashboard.pbix` | The Power BI dashboard, updated to the data of this revision. Three pages: the overview, the map of the profiles and the priority ranking (`Where to Invest`), with filters by profile and by region |
+| `Slide deck capstone project.pptx` | The five slides of the presentation, updated to the numbers of this revision |
+| `data/raw/` | The data as it comes from ISTAT and SITUAS (ISTAT's information system for administrative and territorial units) |
+| `data/clean/` | The datasets produced by the notebook, up to the one with profiles and priority. If you read them with pandas: the province code of Napoli is `NA`, which `read_csv` takes for a missing value unless you pass `keep_default_na=False` |
+| `images/` | The charts saved by the notebook. Two of them are on this page |
+| `requirements.txt` | The libraries used by the notebook, with the versions it was run with |
 
-## Come ho lavorato
+## How I worked
 
-1. **Dati ISTAT scaricati in automatico.** Il notebook chiama l'endpoint SDMX di ISTAT. Il server è lento, quindi chiede solo gli anni dall'ultimo già salvato in poi e li aggiunge agli altri. Ogni risposta viene controllata prima di scrivere: se il download fallisce, l'analisi riparte dal file salvato e lo dice.
-2. **Tre misure per comune e per anno.** Dal dataset tengo gli incidenti (`ROADACC`), i morti e i feriti (`KILLINJ`), dal 2001 all'ultimo anno disponibile.
-3. **Unione con SITUAS.** ISTAT non ha né il nome del comune né la popolazione. Li prendo da SITUAS insieme alla superficie, alla data dell'anno degli incidenti. L'unione parte dall'elenco dei comuni di SITUAS e non dalle righe degli incidenti: negli ultimi anni ISTAT non riporta i comuni senza incidenti, e così restano nell'analisi con uno zero. Dopo l'unione controllo quali codici ISTAT non hanno trovato il loro comune. In questa esecuzione nessuno.
-4. **Indicatori.** Incidenti ogni 100.000 abitanti, per confrontare comuni di dimensioni diverse. Incidenti per chilometro quadrato, per misurare quanto sono concentrati sul territorio. In più le vittime, cioè morti e feriti insieme, ogni 100.000 abitanti, gli stessi due indicatori sulla media degli ultimi tre anni e la variazione rispetto al 2017-2019, i tre anni prima della pandemia.
-5. **Solo i comuni sopra i 10.000 abitanti.** Nei paesi piccoli bastano pochi incidenti per far schizzare il tasso, e nel notebook c'è il grafico che lo mostra. Sopra la soglia il tasso di un anno somiglia a quello dell'anno prima (correlazione 0,88). Questi 1.202 comuni fanno l'80,8% degli incidenti del 2025.
-6. **Nessun comune tolto.** Le grandi città hanno valori molto alti ma veri: restano nell'analisi.
-7. **K-Means in tre profili, sulla media di tre anni.** Con un anno solo circa un comune su sette cambia profilo da un anno all'altro, con la media di tre anni circa uno su sedici. Prima porto i due indicatori sulla stessa scala con `StandardScaler`, poi scelgo il numero di gruppi guardando il gomito e la silhouette. La silhouette da sola direbbe due gruppi (0,53 contro 0,46): ne tengo tre perché il terzo, quello ad alta densità, ha un significato per chi deve investire. Do un nome ai gruppi in base a come sono fatti: bassa incidentalità, alta incidenza per abitante, alta densità.
-8. **Punteggio di priorità.** Per ogni comune la media delle sue due posizioni in classifica, da 0 a 100. È una regola semplice e dichiarata, che chiunque può rifare. Ho provato a spostare il peso su una misura e poi sull'altra: in tutti e due i casi 13 dei primi 15 restano gli stessi.
-9. **Dove gli incidenti crescono.** Per ogni comune confronto la media degli ultimi tre anni con quella del 2017-2019. In Italia il numero è quasi fermo (-0,5%). Nel notebook c'è la tabella dei dieci cresciuti di più tra i cento con la priorità più alta, con accanto la serie anno per anno: una percentuale da sola può ingannare, se uno degli anni di partenza è anomalo.
+1. **ISTAT data downloaded automatically.** The notebook calls the ISTAT SDMX endpoint. The server is slow, so it only asks for the years from the last one already saved onwards and adds them to the rest. Every response is checked before writing: if the download fails, the analysis starts again from the saved file and says so.
+2. **Three measures per municipality and per year.** From the dataset I keep accidents (`ROADACC`), deaths and injured (`KILLINJ`), from 2001 to the latest year available.
+3. **Join with SITUAS.** ISTAT has neither the name of the municipality nor its population. I take them from SITUAS together with the area, asking for the municipalities as of the end of the year of the accidents. The join starts from the SITUAS list of municipalities and not from the accident rows: in recent years ISTAT does not report municipalities with no accidents, and starting from the list keeps them in the analysis with a value of zero. After the join I check which ISTAT codes did not find their municipality. In this run, none.
+4. **Indicators.** Accidents per 100,000 residents, to compare municipalities of different sizes. Accidents per square kilometre, to measure how concentrated they are on the territory. I also compute victims, meaning deaths and injured together, per 100,000 residents, and the same two indicators on the average of the last three years. Last, I measure the change compared with 2017-2019, the three years before the pandemic.
+5. **Only municipalities above 10,000 residents.** In small towns a few accidents are enough to make the rate jump, and a chart in the notebook shows it. Above the threshold the rate of one year is close to that of the year before (correlation 0.88). These 1,202 municipalities account for 80.8% of the accidents of 2025.
+6. **No municipality removed.** Large cities have very high values, but they are real: they stay in the analysis.
+7. **K-Means in three profiles, on the three-year average.** With a single year about one municipality in seven changes profile from one year to the next, with the three-year average about one in sixteen. First I standardise the two indicators with `StandardScaler`, then I choose the number of groups by looking at the elbow and the silhouette. The silhouette alone would say two groups (0.53 against 0.46): I keep three because the third, the high density one, is meaningful for whoever has to invest. The names describe each group: Low, High incidence per resident, High density.
+8. **Priority score.** For each municipality, the average of its two positions in the rankings, by accidents per resident and by accidents per square kilometre, expressed as a score from 0 to 100. It is a simple, stated rule that anyone can redo. I tried shifting the weight to one measure and then to the other: in both cases 13 of the top 15 stay the same.
+9. **Where accidents are growing.** For each municipality I compare the average of the last three years with that of 2017-2019. In Italy the number is almost flat (-0.5%). The notebook has the table of the ten that grew most among the hundred with the highest priority, with the year-by-year series next to it: a percentage alone can mislead if one of the starting years is unusual.
 
-![I quindici comuni con il punteggio di priorità più alto](images/priorita.png)
+![The fifteen municipalities with the highest priority score](images/priorita.png)
 
-## Strumenti
+## Tools
 
 Python (pandas, NumPy, requests, Matplotlib, seaborn, scikit-learn), Jupyter, Power BI, Git.
 
-## Limiti e cosa farei dopo
+## Limits and what I would do next
 
-- **I residenti non sono chi sta sulla strada.** Il tasso divide per chi abita nel comune, ma gli incidenti li fa anche chi passa: turisti, pendolari, traffico autostradale. Una località di mare o un comune attraversato da un'autostrada possono salire in classifica per questo. Con questi dati non si distingue: servirebbero i volumi di traffico o gli incidenti per tipo di strada.
-- **Quanti incidenti, non quanto gravi.** Morti e feriti per abitante seguono da vicino il tasso di incidenti dello stesso anno (correlazione 0,96), quindi qui cambiano poco il quadro. I morti nel singolo comune sono numeri piccoli e vanno letti su più anni.
-- **La popolazione è del 2024, gli incidenti del 2025.** È quella che SITUAS restituisce chiedendo i comuni al 31 dicembre 2025.
-- **I gruppi non sono separati in modo netto.** La silhouette con tre gruppi è 0,46: un comune vicino al confine tra due profili potrebbe stare da una parte o dall'altra. Spostando di un anno la finestra dei tre anni, 77 comuni su 1.202 cambiano profilo.
-- **La variazione conta gli incidenti, non il tasso.** Un comune che ha guadagnato abitanti può crescere solo per quello, e con numeri piccoli una percentuale salta facilmente. Per cinque comuni non si calcola: quattro hanno un codice più recente del 2017, come i comuni nati da una fusione, e uno non ha incidenti nel 2017-2019.
-- **Due comuni con numeri molto bassi.** Riesi e Mazzarino, in provincia di Caltanissetta, hanno più di 10.000 abitanti e pochissimi incidenti: dal 2017 Riesi ne ha da zero a due l'anno. Mazzarino ne ha da zero a quattro, e nel 2025 non compare nemmeno nei dati. Li ho lasciati come arrivano da ISTAT, ma per due comuni di quella grandezza sono numeri strani: il dato alla fonte potrebbe essere incompleto, e da qui non posso verificarlo.
-- **Previsioni.** La traccia lasciava aperta l'idea di prevedere gli incidenti degli anni successivi. La variazione rispetto al 2017-2019 dice dove sono cresciuti, non dove cresceranno: con la serie storica dei comuni si può provare una regressione.
+- **Residents are not the people on the road.** The rate divides by who lives in the municipality, but people passing through have accidents too: tourists, commuters, motorway traffic. A seaside town or a municipality crossed by a motorway can climb the ranking for this reason. With this data I cannot tell them apart: I would need traffic volumes or accidents by type of road.
+- **How many accidents, not how serious.** Deaths and injured per resident closely follow the accident rate of the same year (correlation 0.96), so here they add little to the picture. Deaths in a single municipality are small numbers and should be read over several years.
+- **Population is from 2024, accidents from 2025.** It is the one SITUAS returns when asked for the municipalities as of 31 December 2025.
+- **The groups are not sharply separated.** The silhouette with three groups is 0.46: a municipality close to the border between two profiles could fall on either side. Moving the three-year window by one year, 77 municipalities out of 1,202 change profile.
+- **The change counts accidents, not the rate.** A municipality that gained residents can grow for that reason alone, and with small numbers a percentage jumps easily. For five municipalities it cannot be computed: four have a code more recent than 2017, like the municipalities created by a merger, and one has no accidents in 2017-2019.
+- **Two municipalities with very low numbers.** Riesi and Mazzarino, in the province of Caltanissetta, have more than 10,000 residents and very few accidents: since 2017 Riesi has had between zero and two a year. Mazzarino has had between zero and four, and in 2025 it does not even appear in the data. I left them as they come from ISTAT, but for two municipalities of that size the numbers are unusual: the data at the source could be incomplete, and I have no way to verify it.
+- **Forecasts.** The course brief left room for predicting accidents in the following years. The change compared with 2017-2019 says where they grew, not where they will grow: I could try a regression on the historical series of the municipalities.
 
-## Cosa è cambiato rispetto alla consegna
+## What changed since submission
 
-| Nella versione consegnata | In questa revisione | Perché |
+| In the submitted version | In this revision | Why |
 | --- | --- | --- |
-| Toglievo come valori estremi i comuni oltre 800 incidenti ogni 100.000 abitanti o 15 per chilometro quadrato | Nessun comune tolto | Uscivano 19 comuni tra cui Milano, Genova, Torino, Napoli e Firenze: proprio alcune delle città dove un investimento conta di più |
-| K-Means sui due indicatori senza portarli sulla stessa scala | Indicatori standardizzati, numero di gruppi controllato con gomito e silhouette | Senza scala comune i gruppi erano uguali a quelli fatti con il solo tasso per abitante: la densità non contava |
-| Tre classi: basso, medio, alto | Tre profili: bassa incidentalità, alta incidenza, alta densità. Più un punteggio di priorità | Ora i gruppi usano tutte e due le misure, e la priorità dice da dove cominciare |
-| Solo il numero di incidenti | Anche morti e feriti | Erano già nel file ISTAT |
-| Solo l'ultimo anno | Profili e priorità sulla media di tre anni, andamento dal 2001, confronto con il 2017-2019 | Un anno solo sposta troppi comuni da un profilo all'altro, e serve sapere anche dove gli incidenti crescono |
-| Download con 5 secondi di attesa, che gestiva solo il tempo scaduto | Download a blocchi di anni, con controllo della risposta | Nelle mie prove di novembre il server ISTAT ha risposto in un tempo fra 27 e 69 secondi per un blocco di anni, e una volta non ha risposto per cinque minuti: con tempi così 5 secondi non bastano |
-| Popolazione SITUAS del 2020, file scaricato a mano | Popolazione scaricata in automatico alla data degli incidenti | Tassi più precisi, e nessun comune resta senza nome |
-| Dashboard con i titoli degli assi scambiati nel grafico a dispersione | Titoli corretti | Erano invertiti |
-| Dashboard a due pagine, con i primi dieci comuni per tasso di incidenti | Tre pagine: i primi dieci per punteggio di priorità, il filtro per regione e una pagina nuova con la classifica completa e l'andamento dal 2019 | La dashboard deve raccontare la stessa risposta del notebook: da dove cominciare |
-| Notebook consegnato senza rieseguirlo da capo | Eseguito dall'inizio alla fine prima di salvarlo | Le uscite devono essere quelle del codice che si legge |
+| I removed as outliers the municipalities above 800 accidents per 100,000 residents or 15 per square kilometre | No municipality removed | 19 municipalities were dropped, including Milano, Genova, Torino, Napoli and Firenze: some of the very cities where an investment matters most |
+| K-Means on the two indicators without standardising them | Standardised indicators, number of groups checked with elbow and silhouette | Without a common scale the groups were the same as those built on the rate per resident alone: density did not count |
+| Three classes: low, medium, high | Three profiles: Low, High incidence, High density. Plus a priority score | Now the groups use both measures, and the priority says where to start |
+| Only the number of accidents | Deaths and injured as well | They were already in the ISTAT file |
+| Only the latest year | Profiles and priority on the three-year average, trend since 2001, comparison with 2017-2019 | A single year moves too many municipalities from one profile to another, and you also need to know where accidents are growing |
+| Download with a 5-second wait that only covered timeouts | Download in blocks of years, with a check on the response | In my tests in November the ISTAT server answered in between 27 and 69 seconds for a block of years, and once it did not answer for five minutes: with times like these 5 seconds are not enough |
+| SITUAS population from 2020, file downloaded by hand | Population downloaded automatically as of the date of the accidents | More precise rates, and no municipality is left without a name |
+| Dashboard with the axis titles swapped in the scatter chart | Titles fixed | They were inverted |
+| Two-page dashboard, with the top ten municipalities by accident rate | Three pages: the top ten by priority score, the filter by region and a new page with the full ranking and the trend since 2019 | The dashboard has to give the same answer as the notebook: where to start |
+| Notebook submitted without running it again from the top | Run from start to finish before saving it | The outputs must be those of the code you read |
 
-## Come provarlo
+## How to try it
 
 ```bash
 git clone https://github.com/francesco-mauro/capston_project_final.git
@@ -76,8 +76,8 @@ pip install -r requirements.txt
 jupyter notebook main.ipynb
 ```
 
-Il download da ISTAT può richiedere da un minuto a diversi minuti: il server è lento e il notebook ritenta da solo. La dashboard si apre con Power BI Desktop. Legge due file di `data/clean/` da un percorso fisso del mio PC: per aggiornare i dati va cambiato nelle origini dati (Transform data, Data source settings). I numeri seguono la lingua del PC di chi guarda: in italiano i decimali hanno la virgola.
+The download from ISTAT can take from one minute to several minutes: the server is slow and the notebook retries by itself. The dashboard opens with Power BI Desktop. It reads two files in `data/clean/` from a fixed path on my PC: to refresh the data, change it in the data sources (Transform data, Data source settings). Numbers follow the language of the viewer's PC: in Italian, decimals use a comma.
 
 ---
 
-La traccia originale del Master è in [`Capstone Project README.md`](Capstone%20Project%20README.md).
+The original brief from the Master is in [`Capstone Project README.md`](Capstone%20Project%20README.md).
