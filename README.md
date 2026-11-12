@@ -42,6 +42,8 @@ The numbers are for 2025, the latest year published by ISTAT: 177,207 accidents 
 
 Python (pandas, NumPy, requests, Matplotlib, seaborn, scikit-learn), Jupyter, Power BI, Git.
 
+Claude Code, as an assistant for the version 2 revision and for this README.
+
 ## Limits and what I would do next
 
 - **Residents are not the people on the road.** The rate divides by who lives in the municipality, but people passing through have accidents too: tourists, commuters, motorway traffic. A seaside town or a municipality crossed by a motorway can climb the ranking for this reason. With this data I cannot tell them apart: I would need traffic volumes or accidents by type of road.
