@@ -1,0 +1,11 @@
+# Librerie usate da main.ipynb, nelle versioni con cui è stato eseguito (Python 3.14)
+pandas==3.0.2
+numpy==2.4.4
+requests==2.33.1
+matplotlib==3.10.8
+seaborn==0.13.2
+scikit-learn==1.9.0
+ipykernel==7.2.0
+
+# Per aprire il notebook dal browser con il comando jupyter. Con VS Code non serve
+jupyter

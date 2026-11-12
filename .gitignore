@@ -1,0 +1,7 @@
+# File temporanei di Jupyter e di Python
+.ipynb_checkpoints/
+__pycache__/
+.venv/
+
+# Scarichi a metà: il notebook li scrive qui prima di sostituire il file buono
+*.tmp
